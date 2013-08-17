@@ -1,3 +1,7 @@
+data/*.csv
+
+## github's .gitignore for python ##############################################
+
 *.py[cod]
 
 # C extensions
