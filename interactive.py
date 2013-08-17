@@ -45,12 +45,11 @@ def generate_odo_fuel_pairs(stream, resolution=5):
             last_fuel = current_fuel
             current_fuel = -1
 
-if __name__ == "__main__":
-    import sys
-    sys.argv.pop(0)
-    f = sys.argv.pop(0)
-
-    xs = [x.strip().replace(" ", "").split(',') for x in open(f).readlines()]
+def generate_taxi_stream(filename):
+    '''
+    Generate stream of (time, odo, fuel, cost) from the given CSV file.
+    '''
+    xs = [x.strip().replace(" ", "").split(',') for x in open(filename).readlines()]
 
     pairs = generate_odo_fuel_pairs(xs)
 
@@ -59,7 +58,18 @@ if __name__ == "__main__":
         t_now = (t - t0)
         odo_now = (odo - odo0) * KM_TO_MILES
         fuel_now = (fuel - fuel0) * LITERS_TO_GALLONS
-        print "t=%s\todo=%s\tfuel=%s\tcost=%s" % (
-            t_now, odo_now, fuel_now, (odo_now * CURRENT_FUEL_COST) + (fuel_now * CURRENT_FUEL_COST)
+        yield dict(
+            t=t_now,
+            odo=odo_now,
+            fuel=fuel_now,
+            cost=(odo_now * CURRENT_FUEL_COST) + (fuel_now * CURRENT_FUEL_COST),
         )
+
+if __name__ == "__main__":
+    import sys
+    sys.argv.pop(0)
+    f = sys.argv.pop(0)
+
+    for row in generate_taxi_stream(f):
+        print "t=%(t).2f\todo=%(odo).2f\tfuel=%(fuel).2f\tcost=%(cost).2f" % row
         import time; time.sleep(0.2)
