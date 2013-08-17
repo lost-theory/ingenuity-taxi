@@ -26,6 +26,7 @@ def generate_odo_fuel_pairs(stream, resolution=5):
     bucket = start - (start % resolution)
     current_odo = -1
     current_fuel = -1
+    last_fuel = -1
     for row in stream:
         ts = float(row[TS])
         if row[FIELD] not in ["odometer", "fuel_consumed_since_restart"]:
@@ -35,10 +36,13 @@ def generate_odo_fuel_pairs(stream, resolution=5):
         if current_fuel == -1 and row[FIELD] == "fuel_consumed_since_restart":
             current_fuel = row[VAL]
         if (ts - (ts % resolution)) > bucket:
-            if current_odo > 0 and current_fuel > 0:
+            if current_odo > 0:
+                #fuel does not start at 0 on some runs
+                current_fuel = max(current_fuel, last_fuel)
                 yield (ts, (float(current_odo), float(current_fuel)))
             bucket = (ts - (ts % resolution))
             current_odo = -1
+            last_fuel = current_fuel
             current_fuel = -1
 
 if __name__ == "__main__":
@@ -49,6 +53,7 @@ if __name__ == "__main__":
     xs = [x.strip().replace(" ", "").split(',') for x in open(f).readlines()]
 
     pairs = generate_odo_fuel_pairs(xs)
+
     (t0, (odo0, fuel0)) = init = next(pairs)
     for (t, (odo, fuel)) in itertools.chain([init], pairs):
         t_now = (t - t0)
