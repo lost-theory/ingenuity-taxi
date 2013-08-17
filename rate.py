@@ -5,7 +5,7 @@ Basic ride cost calculator.
 LITERS_TO_GALLONS = 0.264172
 KM_TO_MILES = 0.621371
 
-MAINT_COST_PER_MILE = 0.29
+MAINT_COST_PER_MILE = 0.29 #http://www.companymileage.com/howmileageratedetermined.html
 CURRENT_FUEL_COST = 3.928 #http://www.sanfrangasprices.com/
 
 def calc(f):
