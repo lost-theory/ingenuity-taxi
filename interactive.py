@@ -37,7 +37,7 @@ def generate_odo_fuel_pairs(stream, resolution=5):
             current_fuel = row[VAL]
         if (ts - (ts % resolution)) > bucket:
             if current_odo > 0:
-                #fuel does not start at 0 on some runs
+                #workaround for when fuel does not start at 0 on some runs
                 current_fuel = max(current_fuel, last_fuel)
                 yield (ts, (float(current_odo), float(current_fuel)))
             bucket = (ts - (ts % resolution))
@@ -66,10 +66,10 @@ def generate_taxi_stream(filename):
         )
 
 if __name__ == "__main__":
-    import sys
+    import sys, time
     sys.argv.pop(0)
     f = sys.argv.pop(0)
 
     for row in generate_taxi_stream(f):
         print "t=%(t).2f\todo=%(odo).2f\tfuel=%(fuel).2f\tcost=%(cost).2f" % row
-        import time; time.sleep(0.2)
+        time.sleep(0.2)

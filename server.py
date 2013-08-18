@@ -15,7 +15,7 @@ def cost2bytes(cost):
     '''
     Convert a float to 4 bytes for the 7-segment display.
 
-    0.01 -> "0000", 10.01 -> "1001", etc.
+    0.01 -> "0001", 10.01 -> "1001", etc.
     '''
     return ("0000" + "%.2f" % cost).replace(".", "")[-4:]
 
