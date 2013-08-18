@@ -1,0 +1,80 @@
+<html>
+<head>
+    <title>Taximeter</title>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://use.edgefonts.net/orbitron.js"></script>
+    <script src="/static/sprintf.min.js"></script>
+<meta name="viewport" content="width=800" />
+    <style type="text/css">
+    body { background-color: #333; color: red; }
+    .stat { font-family: orbitron, sans-serif; background-color: #111; padding: 16px 10px 10px 10px; font-size: 1.85em; letter-spacing: 0.1em; }
+    .row { padding-bottom: 1.0em; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="span6">
+            <span class='label'>Drive time:</span><br/>
+            <div class='stat' id='stats_t'>12:34:56</div>
+        </div>
+        <div class="span6">
+            <span class='label'>Cost:</span><br/>
+            <div class='stat' id='stats_cost'>$4.12</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <span class='label'>Distance:</span><br/>
+            <div class='stat' id='stats_odo'>12.14 mi</div>
+        </div>
+        <div class="span6">
+            <span class='label'>Fuel used:</span><br/>
+            <div class='stat' id='stats_fuel'>1.02 gal</div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+var INTERVAL = 1000;
+var ws = new WebSocket(sprintf('ws://%s:80/ws', document.location.hostname));
+
+function next() {
+    ws.send(JSON.stringify({"cmd": "next"}));
+}
+
+function seconds_to_clock_display(seconds) {
+    var hours   = Math.floor(seconds / 3600);
+    var minutes = Math.floor((seconds - (hours * 3600)) / 60);
+    var seconds = seconds - (hours * 3600) - (minutes * 60);
+
+    var time = sprintf("%02d:%02d:%02d", hours, minutes, seconds);
+    return time;
+}
+
+ws.onopen = function() {
+    var id = window.location.search.split('=')[1] || '0';
+    ws.send(JSON.stringify({"cmd": "start", "id": parseInt(id)}));
+    setInterval(next, INTERVAL);
+};
+
+ws.onmessage = function(ev) {
+    var data = JSON.parse(ev.data);
+    $('#stats_t').html(seconds_to_clock_display(data.t));
+    $('#stats_odo').html(sprintf("%.2f", data.odo) + " mi");
+    $('#stats_fuel').html(sprintf("%.2f", data.fuel) + " gal");
+    $('#stats_cost').html("$" + sprintf("%.2f", data.cost));
+};
+
+ws.onclose = function(ev) {
+    console.log('websocket closed');
+};
+
+ws.onerror = function(ev) {
+    console.log('websocket error');
+};
+</script>
+</body>
+</html>
