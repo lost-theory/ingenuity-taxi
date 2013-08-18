@@ -53,6 +53,21 @@ And display these values as new data comes in to two places (concurrently):
 This is done with a python app (server.py) using Tornado, pyserial, and
 websockets.
 
+How to run it
+=============
+
+First, place the sample CSVs in the data directory.
+
+```
+$ virtualenv ~/taxi_env
+$ ~/taxi_env/bin/pip install -r requirements.txt
+$ HTTP_PORT=80 SERIAL_DEVICE=/dev/cu.usbmodemfa131 sudo ~/taxi_env/bin/python server.py
+```
+
+Then visit `http://localhost/` to start the taximeter and display the rate to
+the screen and the arduino. You can pick a different CSV by appending `?id=0`
+through `?id=4` to the URL.
+
 Authors
 =======
 

@@ -8,6 +8,9 @@ from serial import Serial
 
 from interactive import generate_taxi_stream
 
+SERIAL_DEVICE = os.environ.get('SERIAL_DEVICE', '/dev/cu.usbmodemfa131')
+HTTP_PORT = int(os.environ.get('HTTP_PORT', '80'))
+
 serial = None
 arduino_writer = None
 
@@ -60,9 +63,10 @@ app = tornado.web.Application([
 
 if __name__ == '__main__':
     try:
-        serial = Serial('/dev/cu.usbmodemfa131', 9600, timeout=1)
+        serial = Serial(SERIAL_DEVICE, 9600, timeout=1)
     except:
+        print "Could not connect to serial device %r." % SERIAL_DEVICE
         pass
 
-    app.listen(80)
+    app.listen(HTTP_PORT)
     tornado.ioloop.IOLoop.instance().start()
